@@ -11,6 +11,10 @@
       url = "github:nicklayb/astronvim/v6";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    ivhs-companion = {
+      url = "github:nicklayb/ivhs_companion";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs: {
@@ -40,6 +44,7 @@
 
           modules = [
             inputs.home-manager.nixosModules.home-manager
+            inputs.ivhs-companion.nixosModules.default
             ./ivhs
             ./hardware-configuration.nix
             ./configuration.nix

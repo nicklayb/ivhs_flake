@@ -15,14 +15,30 @@ let
   mkStrOption = mkOption lib.types.str;
   mkBoolOption = mkOption lib.types.bool;
   mkIntOption = mkOption lib.types.int;
+  mkEnumOption = options: mkOption (lib.types.enum options);
   defaultMqttPort = 1883;
   defaultBorkerPort = 4000;
   cfg = config.services.ivhs;
   internalDockerHostname = "host.docker.internal";
 in
 {
+
+  imports = [
+    ./labwc.nix
+    ./mosquitto.nix
+    ./programs.nix
+    ./companion.nix
+    (import ./docker.nix {
+      config = config;
+      lib = lib;
+      pkgs = pkgs;
+      internalDockerHostname = internalDockerHostname;
+    })
+  ];
+
   options = {
     services.ivhs = {
+
       enable = lib.mkEnableOption "Enables IVHS";
 
       mqtt = {
@@ -36,6 +52,14 @@ in
         enable = mkBoolOption "Enables Postgres Server" true;
         password = mkStrOption "Postgres's password" "postgres";
         databaseName = mkStrOption "Postgres's database name" "ivhs_broker";
+      };
+
+      companion = {
+        enable = mkBoolOption "Enables USB Companion app" true;
+        device = {
+          vendorId = mkStrOption "Device's vendor ID" "239a";
+          productId = mkStrOption "Device's product ID" "8029";
+        };
       };
 
       broker = {
@@ -65,103 +89,29 @@ in
           token = mkStrOption "Plex token" "";
         };
       };
+
+      player = {
+        enable = mkBoolOption "Enables IVHS Player" true;
+        windowManager = mkEnumOption [ "labwc" ] "Selects the window manager" "labwc";
+      };
+
+      programs = {
+        snes.enable = mkBoolOption "Enables SNES program" true;
+        mpv.enable = mkBoolOption "Enables MPV program" true;
+      };
     };
   };
 
   config =
     let
-      networkName = "ivhs";
-      postgresVolume = "ivhs-postgres";
-      ivhsServiceName = "docker-ivhs";
-      databaseServiceName = "docker-postgres";
       ports =
         (if cfg.mqtt.enable then [ cfg.mqtt.port ] else [ ])
         ++ (if cfg.broker.enable then [ cfg.broker.port ] else [ ]);
     in
-    lib.mkIf cfg.enable {
-      services.mosquitto = lib.mkIf cfg.mqtt.enable {
-        enable = true;
-        listeners = [
-          {
-            port = cfg.mqtt.port;
-            users.${cfg.mqtt.username} = {
-              acl = [ "readwrite ivhs/#" ];
-              password = cfg.mqtt.password;
-            };
-          }
-        ];
-      };
-      systemd.services."oci-ivhs-setup" = {
-        description = "Create IVHS OCI requirements";
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig.Type = "oneshot";
-        script = ''
-          ${pkgs.docker}/bin/docker network inspect ${networkName} > /dev/null 2>&1 || \
-          ${pkgs.docker}/bin/docker network create ${networkName}
-
-          ${pkgs.docker}/bin/docker volume inspect ${postgresVolume} > /dev/null 2>&1 || \
-          ${pkgs.docker}/bin/docker volume create ${postgresVolume}
-        '';
-      };
-
-      virtualisation = {
-        docker.enable = true;
-        oci-containers = {
-          backend = "docker";
-
-          containers = {
-            postgres = lib.mkIf cfg.postgres.enable {
-              autoStart = true;
-              serviceName = databaseServiceName;
-              hostname = "ivhspostgres";
-              image = "postgres:18.3";
-              ports = [ "5432:5432" ];
-              networks = [ networkName ];
-              volumes = [
-                "${postgresVolume}:/var/lib/postgresql"
-              ];
-              environment = {
-                POSTGRES_PASSWORD = cfg.postgres.password;
-                POSTGRES_DB = cfg.postgres.databaseName;
-              };
-            };
-            ivhs_broker = lib.mkIf cfg.broker.enable {
-              autoStart = true;
-              serviceName = ivhsServiceName;
-              hostname = "ivhs-broker";
-              image = "nboisvert/ivhs_broker:${cfg.broker.version}";
-              ports = [ "${toString cfg.broker.port}:4000" ];
-              networks = [ networkName ];
-              extraOptions = [
-                "--add-host=${internalDockerHostname}:host-gateway"
-              ];
-              environment = {
-                SECRET_KEY_BASE = cfg.broker.secretKeyBase;
-                LIVE_VIEW_SALT = cfg.broker.liveViewSalt;
-                APP_HOST = cfg.broker.app_host;
-                LOGGER_LEVEL = cfg.broker.loggerLevel;
-                EMITTER_DEBOUNCE = toString cfg.broker.emitterDebounce;
-
-                DATABASE_PATH = cfg.broker.database_url;
-
-                # MQTT configuration
-                MQTT_HOST = cfg.broker.mqtt.host;
-                MQTT_PORT = toString cfg.broker.mqtt.port;
-                MQTT_CLIENT_ID = cfg.broker.mqtt.clientId;
-                MQTT_USERNAME = cfg.broker.mqtt.username;
-                MQTT_PASSWORD = cfg.broker.mqtt.password;
-
-                # Plex configuration
-                PLEX_HOST = cfg.broker.plex.host;
-                PLEX_TOKEN = cfg.broker.plex.token;
-              };
-            };
-          };
-        };
-      };
+    (lib.mkIf cfg.enable {
 
       networking.firewall = {
         allowedTCPPorts = ports;
       };
-    };
+    });
 }
