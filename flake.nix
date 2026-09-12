@@ -3,43 +3,62 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     astronvim-config = {
       url = "github:nicklayb/astronvim/v6";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     ivhs-companion = {
       url = "github:nicklayb/ivhs_companion";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixos-hardware = {
+      url = "github:nixos/nixos-hardware";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs: {
-    nixosConfigurations =
-      let
-        hostname = "ivhs";
+  outputs =
+    inputs:
+    let
+      lib = inputs.nixpkgs.lib;
+
+      stateVersion = "26.05";
+      username = "admin";
+      hostname = "ivhs";
+
+      x86Pkgs = import inputs.nixpkgs {
         system = "x86_64-linux";
-        stateVersion = "26.05";
-        username = "admin";
-        pkgs = import inputs.nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-        };
-      in
-      {
-        ivhs = inputs.nixpkgs.lib.nixosSystem {
+        config.allowUnfree = true;
+      };
+
+      aarch64Pkgs = import inputs.nixpkgs {
+        system = "aarch64-linux";
+        config.allowUnfree = true;
+      };
+    in
+    {
+      nixosConfigurations = {
+        development = lib.nixosSystem {
+          system = "x86_64-linux";
+
           specialArgs = {
             inherit
               stateVersion
-              system
-              pkgs
-              hostname
               username
+              hostname
               inputs
               ;
+
+            pkgs = x86Pkgs;
           };
 
           modules = [
@@ -48,24 +67,47 @@
             ./ivhs
             ./hardware-configuration.nix
             ./configuration.nix
+
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
+
               home-manager.users.${username} = import ./home.nix;
+
               home-manager.extraSpecialArgs = {
                 inherit
-                  pkgs
                   stateVersion
                   inputs
                   username
                   ;
+
+                pkgs = x86Pkgs;
               };
             }
           ];
         };
+        rpi = lib.nixosSystem {
+          system = "aarch64-linux";
+
+          specialArgs = {
+            inherit stateVersion username inputs;
+            hostname = "ivhs-pi";
+          };
+
+          pkgs = import inputs.nixpkgs {
+            localSystem = "x86_64-linux";
+            crossSystem = "aarch64-linux";
+
+            config.allowUnfree = true;
+          };
+
+          modules = [
+            "${inputs.nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+            ./rpi.nix
+          ];
+        };
       };
-    nixosModules = {
-      ivhs = import ./ivhs;
+
+      nixosModules.ivhs = import ./ivhs;
     };
-  };
 }
