@@ -94,13 +94,6 @@
             hostname = "ivhs-pi";
           };
 
-          pkgs = import inputs.nixpkgs {
-            localSystem = "x86_64-linux";
-            crossSystem = "aarch64-linux";
-
-            config.allowUnfree = true;
-          };
-
           modules = [
             "${inputs.nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
             ./rpi.nix
