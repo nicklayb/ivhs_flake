@@ -39,11 +39,6 @@
         system = "x86_64-linux";
         config.allowUnfree = true;
       };
-
-      aarch64Pkgs = import inputs.nixpkgs {
-        system = "aarch64-linux";
-        config.allowUnfree = true;
-      };
     in
     {
       nixosConfigurations = {
@@ -96,6 +91,7 @@
 
           modules = [
             "${inputs.nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+            ./home.nix
             ./rpi.nix
           ];
         };

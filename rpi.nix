@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 
 {
 
@@ -7,12 +7,22 @@
 
   networking.hostName = "ivhs-pi";
 
-  services.openssh = {
-    enable = true;
-    settings.PermitRootLogin = "yes";
+  services = {
+    openssh = {
+      enable = true;
+      settings.PermitRootLogin = "yes";
+    };
+
+    ivhs = {
+      enable = true;
+      broker = {
+        app_host = "http://192.168.1.163:4000";
+        plex.host = "http://192.168.1.9:32400";
+      };
+    };
   };
 
-  users.users.nixos = {
+  users.users.${username} = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     initialPassword = "nixos";

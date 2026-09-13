@@ -38,7 +38,6 @@ in
 
   options = {
     services.ivhs = {
-
       enable = lib.mkEnableOption "Enables IVHS";
 
       mqtt = {

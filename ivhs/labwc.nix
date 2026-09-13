@@ -2,7 +2,6 @@
   config,
   pkgs,
   lib,
-  stateVersion,
   ...
 }:
 {
@@ -17,8 +16,6 @@
       ];
       shell = pkgs.bash;
     };
-
-    home-manager.users.ivhs.home.stateVersion = stateVersion;
 
     programs.labwc.enable = true;
 

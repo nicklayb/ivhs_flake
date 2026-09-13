@@ -8,6 +8,8 @@
   imports = [
     inputs.astronvim-config.homeManagerModules.default
   ];
+
+  home-manager.users.${username}.home.stateVersion = stateVersion;
   programs.home-manager.enable = true;
   home = {
     username = "${username}";
