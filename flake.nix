@@ -90,8 +90,9 @@
           };
 
           modules = [
+            inputs.ivhs-companion.nixosModules.default
             "${inputs.nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-            ./home.nix
+            ./ivhs
             ./rpi.nix
           ];
         };
