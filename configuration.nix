@@ -9,7 +9,6 @@
   boot.loader.grub.device = "/dev/vda";
   boot.loader.grub.useOSProber = true;
 
-  networking.hostName = "ivhs";
   networking.networkmanager.enable = true;
 
   time.timeZone = "America/New_York";

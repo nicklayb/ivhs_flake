@@ -5,8 +5,6 @@
   boot.loader.grub.enable = false;
   boot.loader.generic-extlinux-compatible.enable = true;
 
-  networking.hostName = "ivhs-pi";
-
   services = {
     openssh = {
       enable = true;

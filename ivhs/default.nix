@@ -16,7 +16,7 @@ let
   mkIntOption = mkOption lib.types.int;
   mkEnumOption = options: mkOption (lib.types.enum options);
   defaultMqttPort = 1883;
-  defaultBorkerPort = 4000;
+  defaultBorkerPort = 80;
   cfg = config.services.ivhs;
 in
 {
@@ -33,6 +33,7 @@ in
   options = {
     services.ivhs = {
       enable = lib.mkEnableOption "Enables IVHS";
+      hostname = mkStrOption "Sets hostname for app host" "ivhs";
 
       mqtt = {
         enable = mkBoolOption "Enables MQTT broker" true;
@@ -55,6 +56,8 @@ in
         };
       };
 
+      mdns.enable = mkBoolOption "Enables mDNS auto discovery" true;
+
       broker = {
         enable = mkBoolOption "Enables IVHS Broker" true;
         port = mkIntOption "IVHS Port" defaultBorkerPort;
@@ -67,7 +70,7 @@ in
         liveViewSalt = mkStrOption "IVHS Secret key base" (
           builtins.hashString "sha256" "${cfg.broker.name}.live_view_salt"
         );
-        app_host = mkStrOption "App's hostname" "http://localhost:${toString defaultBorkerPort}";
+        app_host = mkStrOption "App's hostname" "http://${cfg.hostname}:${toString defaultBorkerPort}";
         loggerLevel = mkStrOption "Logger's level" "info";
         emitterDebounce = mkIntOption "Emitter's debounce" 1000;
         mqtt = {
@@ -102,6 +105,18 @@ in
         ++ (if cfg.broker.enable then [ cfg.broker.port ] else [ ]);
     in
     (lib.mkIf cfg.enable {
+      services.avahi = {
+        enable = cfg.mdns.enable;
+        nssmdns4 = true;
+        openFirewall = true;
+        publish = {
+          enable = true;
+          addresses = true;
+          workstation = true;
+        };
+      };
+
+      networking.hostName = cfg.hostname;
 
       networking.firewall = {
         allowedTCPPorts = ports;
