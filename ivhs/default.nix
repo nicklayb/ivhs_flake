@@ -28,12 +28,12 @@ in
     ./mosquitto.nix
     ./programs.nix
     ./companion.nix
-    (import ./docker.nix {
-      config = config;
-      lib = lib;
-      pkgs = pkgs;
-      internalDockerHostname = internalDockerHostname;
-    })
+    # (import ./docker.nix {
+    #   config = config;
+    #   lib = lib;
+    #   pkgs = pkgs;
+    #   internalDockerHostname = internalDockerHostname;
+    # })
   ];
 
   options = {

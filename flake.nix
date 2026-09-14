@@ -14,6 +14,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    ivhs-broker = {
+      url = "github:nicklayb/ivhs_broker";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     ivhs-companion = {
       url = "github:nicklayb/ivhs_companion";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -59,6 +64,7 @@
           modules = [
             inputs.home-manager.nixosModules.home-manager
             inputs.ivhs-companion.nixosModules.default
+            inputs.ivhs-broker.nixosModules.default
             ./ivhs
             ./hardware-configuration.nix
             ./configuration.nix
@@ -91,6 +97,7 @@
 
           modules = [
             inputs.ivhs-companion.nixosModules.default
+            inputs.ivhs-broker.nixosModules.default
             "${inputs.nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
             ./ivhs
             ./rpi.nix
