@@ -18,7 +18,6 @@ let
   defaultMqttPort = 1883;
   defaultBorkerPort = 4000;
   cfg = config.services.ivhs;
-  internalDockerHostname = "host.docker.internal";
 in
 {
 
@@ -61,7 +60,7 @@ in
         port = mkIntOption "IVHS Port" defaultBorkerPort;
         name = mkStrOption "IVHS app name" "ivhs-app";
         version = mkStrOption "Broker version (docker image tag)" "latest";
-        database_url = mkStrOption "Postgres database url" "postgresql://postgres:postgres@ivhspostgres/${cfg.postgres.databaseName}";
+        databaseUrl = mkStrOption "Postgres database url" "postgresql://${cfg.postgres.databaseName}:${cfg.postgres.password}@localhost/${cfg.postgres.databaseName}";
         secretKeyBase = mkStrOption "IVHS Secret key base" (
           builtins.hashString "sha256" "${cfg.broker.name}.secret_key_base"
         );
@@ -72,7 +71,7 @@ in
         loggerLevel = mkStrOption "Logger's level" "info";
         emitterDebounce = mkIntOption "Emitter's debounce" 1000;
         mqtt = {
-          host = mkStrOption "MQTT Broker hostname" "${internalDockerHostname}";
+          host = mkStrOption "MQTT Broker hostname" "localhost";
           port = mkIntOption "MQTT Broker port" defaultMqttPort;
           clientId = mkStrOption "IVHS Broker client id on MQTT broker" "ivhs-player";
           username = mkStrOption "MQTT Broker username" cfg.mqtt.username;

@@ -12,23 +12,24 @@ in
     services.postgresql = {
       enable = true;
       package = pkgs.postgresql_18;
-      authentication = lib.mkOverride 10 [
+      enableTCPIP = true;
+      ensureDatabases = [ cfg.postgres.databaseName ];
+      ensureUsers = [
         {
-          type = "local";
-          database = cfg.postgres.databaseName;
-          user = "postgres";
-          method = "trust";
-        }
-        {
-          type = "local";
-          database = cfg.postgres.databaseName;
-          user = cfg.postgres.databaseName;
-          method = "md5";
+          name = cfg.postgres.databaseName;
+          ensureDBOwnership = true;
+          ensureClauses = {
+            password = cfg.postgres.password;
+            createdb = true;
+            createrole = true;
+          };
         }
       ];
-      initialScript = ''
-        CREATE USER ${cfg.postgres.databaseName} WITH PASSWORD '${cfg.postgres.password}';
-        CREATE DATABASE ${cfg.postgres.databaseName} OWNER ${cfg.postgres.databaseName};
+      authentication = pkgs.lib.mkOverride 10 ''
+        # TYPE  DATABASE        USER            ADDRESS                 METHOD
+        local   all             all                                     trust
+        host    all             all             127.0.0.1/32            trust
+        host    all             all             ::1/128                 trust
       '';
     };
   };

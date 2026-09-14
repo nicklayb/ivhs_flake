@@ -86,11 +86,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789344085,
-        "narHash": "sha256-lP48xyiQhkYHNQjBLZy8PZY8H3TwQbIT2evpROynduA=",
+        "lastModified": 1789350927,
+        "narHash": "sha256-X5gFTFk7N2mwFj3Qbq+zbvg+18JMPKbe3KIQq3MnSGI=",
         "owner": "nicklayb",
         "repo": "ivhs_broker",
-        "rev": "670f917264ca9e2086118a8d6fc328ff708b41b5",
+        "rev": "ce6c67cf6c09635ba28a991581eec2f3b21b3ffe",
         "type": "github"
       },
       "original": {
@@ -107,11 +107,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789159941,
-        "narHash": "sha256-meqfO2EGP0xcN8f4JnAEC9RW0gMNychtD3aGvXs2WnM=",
+        "lastModified": 1789349647,
+        "narHash": "sha256-E63L4UTFJBI6Sqg3q0iDI/Twmh7p4av+Rc2KkcYkKPg=",
         "owner": "nicklayb",
         "repo": "ivhs_companion",
-        "rev": "4bbc32820710834c683ae6fa4760a6821593f8b5",
+        "rev": "27eda8899573a325b56dbbf5b5f5a13a972c5bad",
         "type": "github"
       },
       "original": {
