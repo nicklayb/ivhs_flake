@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 let
@@ -28,12 +27,8 @@ in
     ./mosquitto.nix
     ./programs.nix
     ./companion.nix
-    # (import ./docker.nix {
-    #   config = config;
-    #   lib = lib;
-    #   pkgs = pkgs;
-    #   internalDockerHostname = internalDockerHostname;
-    # })
+    ./broker.nix
+    ./postgres.nix
   ];
 
   options = {
