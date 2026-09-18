@@ -42,6 +42,8 @@ in
       enable = lib.mkEnableOption "Enables IVHS";
       hostname = mkStrOption "Sets hostname for app host" "ivhs";
 
+      username = mkStrOption "Username to attach to" "ivhs";
+
       mqtt = {
         enable = mkBoolOption "Enables MQTT broker" true;
         port = mkIntOption "MQTT broker port" defaultMqttPort;

@@ -6,15 +6,12 @@
 }:
 {
   config = lib.mkIf (config.services.ivhs.player.windowManager == "labwc") {
-    users.users.ivhs = {
-      isNormalUser = true;
-      description = "iVHS Player";
+    users.users.${config.services.ivhs.username} = {
       extraGroups = [
         "video"
         "input"
         "audio"
       ];
-      shell = pkgs.bash;
     };
 
     programs.labwc.enable = true;
@@ -27,12 +24,12 @@
       settings = {
         initial_session = {
           command = "${pkgs.labwc}/bin/labwc";
-          user = "ivhs";
+          user = config.services.ivhs.username;
         };
 
         default_session = {
           command = "${pkgs.labwc}/bin/labwc";
-          user = "ivhs";
+          user = config.services.ivhs.username;
         };
       };
     };
@@ -45,10 +42,6 @@
 
       wayland-utils
       wl-clipboard
-
-      # mpv
-      # vlc
-      # snes9x
     ];
 
     environment.etc."xdg/labwc/rc.xml".text = ''
@@ -65,9 +58,8 @@
 
         <mouse>
         </mouse>
-        <theme>
-          <titlebar>
-            <show>no</show>
+        <theme maximizedDecocation="no" keepBorder="no">
+          <titlebar showTitle="no">
           </titlebar>
         </theme>
 

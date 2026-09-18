@@ -37,7 +37,7 @@
       lib = inputs.nixpkgs.lib;
 
       stateVersion = "26.05";
-      username = "admin";
+      username = "ivhs";
       hostname = "ivhs";
 
       x86Pkgs = import inputs.nixpkgs {

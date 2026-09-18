@@ -37,6 +37,7 @@
 
     ivhs = {
       enable = true;
+      username = username;
       broker = {
         plex.host = "http://192.168.1.9:32400";
       };
