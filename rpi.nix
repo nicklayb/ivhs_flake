@@ -14,7 +14,6 @@
     ivhs = {
       enable = true;
       broker = {
-        app_host = "http://192.168.1.163:4000";
         plex.host = "http://192.168.1.9:32400";
       };
     };

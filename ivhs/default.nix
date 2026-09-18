@@ -16,8 +16,15 @@ let
   mkIntOption = mkOption lib.types.int;
   mkEnumOption = options: mkOption (lib.types.enum options);
   defaultMqttPort = 1883;
-  defaultBorkerPort = 80;
+  defaultBorkerPort = 4000;
   cfg = config.services.ivhs;
+  mqttSettings = {
+    host = mkStrOption "MQTT Broker hostname" "localhost";
+    port = mkIntOption "MQTT Broker port" defaultMqttPort;
+    clientId = mkStrOption "IVHS Broker client id on MQTT broker" "ivhs-player";
+    username = mkStrOption "MQTT Broker username" cfg.mqtt.username;
+    password = mkStrOption "MQTT Broker password" cfg.mqtt.password;
+  };
 in
 {
 
@@ -53,7 +60,9 @@ in
         device = {
           vendorId = mkStrOption "Device's vendor ID" "239a";
           productId = mkStrOption "Device's product ID" "8029";
+          baudRate = mkIntOption "Device's baud rate" 115200;
         };
+        mqtt = mqttSettings;
       };
 
       mdns.enable = mkBoolOption "Enables mDNS auto discovery" true;
@@ -70,16 +79,10 @@ in
         liveViewSalt = mkStrOption "IVHS Secret key base" (
           builtins.hashString "sha256" "${cfg.broker.name}.live_view_salt"
         );
-        app_host = mkStrOption "App's hostname" "http://${cfg.hostname}:${toString defaultBorkerPort}";
+        appHost = mkStrOption "App's hostname" "http://${cfg.hostname}.local:${toString defaultBorkerPort}";
         loggerLevel = mkStrOption "Logger's level" "info";
         emitterDebounce = mkIntOption "Emitter's debounce" 1000;
-        mqtt = {
-          host = mkStrOption "MQTT Broker hostname" "localhost";
-          port = mkIntOption "MQTT Broker port" defaultMqttPort;
-          clientId = mkStrOption "IVHS Broker client id on MQTT broker" "ivhs-player";
-          username = mkStrOption "MQTT Broker username" cfg.mqtt.username;
-          password = mkStrOption "MQTT Broker password" cfg.mqtt.password;
-        };
+        mqtt = mqttSettings;
         plex = {
           host = mkStrOption "Plex hostname" "";
           token = mkStrOption "Plex token" "";

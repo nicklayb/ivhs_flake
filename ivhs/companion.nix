@@ -4,9 +4,6 @@
 }:
 {
   config = {
-    services.ivhs-companion = {
-      enable = config.services.ivhs.companion.enable;
-      device = config.services.ivhs.companion.device;
-    };
+    services.ivhs-companion = config.services.ivhs.companion;
   };
 }
